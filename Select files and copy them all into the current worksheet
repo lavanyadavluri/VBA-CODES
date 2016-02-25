@@ -1,0 +1,61 @@
+Sub CombineTextFiles()
+    Dim FilesToOpen
+    Dim x As Integer
+    Dim wkbAll As Workbook
+    Dim wkbTemp As Workbook
+    Dim sDelimiter As String
+
+    On Error GoTo ErrHandler
+    Application.ScreenUpdating = False
+
+    sDelimiter = "|"
+
+    FilesToOpen = Application.GetOpenFilename _
+      (FileFilter:="Text Files (*.tab), *.tab", _
+      MultiSelect:=True, Title:="Text Files to Open")
+
+    If TypeName(FilesToOpen) = "Boolean" Then
+        MsgBox "No Files were selected"
+        GoTo ExitHandler
+    End If
+
+    x = 1
+    Set wkbTemp = Workbooks.Open(Filename:=FilesToOpen(x))
+    wkbTemp.Sheets(1).Copy
+    Set wkbAll = ActiveWorkbook
+    wkbTemp.Close (False)
+    wkbAll.Worksheets(x).Columns("A:A").TextToColumns _
+      Destination:=Range("A1"), DataType:=xlDelimited, _
+      TextQualifier:=xlDoubleQuote, _
+      ConsecutiveDelimiter:=False, _
+      Tab:=True, Semicolon:=False, _
+      Comma:=False, Space:=False, _
+      Other:=False
+    x = x + 1
+
+    While x <= UBound(FilesToOpen)
+        Set wkbTemp = Workbooks.Open(Filename:=FilesToOpen(x))
+        With wkbAll
+            wkbTemp.Sheets(1).Move After:=.Sheets(.Sheets.Count)
+            .Worksheets(x).Columns("A:A").TextToColumns _
+              Destination:=Range("A1"), DataType:=xlDelimited, _
+              TextQualifier:=xlDoubleQuote, _
+              ConsecutiveDelimiter:=False, _
+              Tab:=True, Semicolon:=False, _
+              Comma:=False, Space:=False, _
+              Other:=True
+        End With
+        x = x + 1
+    Wend
+
+ExitHandler:
+    Application.ScreenUpdating = True
+    Set wkbAll = Nothing
+    Set wkbTemp = Nothing
+    Exit Sub
+
+ErrHandler:
+    MsgBox Err.Description
+    Resume ExitHandler
+End Sub
+
