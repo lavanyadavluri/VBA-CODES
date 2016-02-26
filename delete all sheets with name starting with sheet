@@ -1,0 +1,12 @@
+'deletes all of the Sheets with name starting with "Sheet"
+Sub cleanupsheets()
+    Dim ws As Worksheet
+    For Each ws In ActiveWorkbook.Worksheets
+        If InStr(ws.Name, "Sheet") = 1 Then
+            Application.DisplayAlerts = False
+            ws.Delete
+            Application.DisplayAlerts = True
+    End If
+         
+    Next ws
+End Sub
