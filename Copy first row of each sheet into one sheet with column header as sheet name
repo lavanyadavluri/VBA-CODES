@@ -1,0 +1,90 @@
+Function LastRow(sh As Worksheet)
+    On Error Resume Next
+    LastRow = sh.Cells.Find(What:="*", _
+                            After:=sh.Range("A1"), _
+                            Lookat:=xlPart, _
+                            LookIn:=xlFormulas, _
+                            SearchOrder:=xlByRows, _
+                            SearchDirection:=xlPrevious, _
+                            MatchCase:=False).Row
+    On Error GoTo 0
+End Function
+
+
+Function LastCol(sh As Worksheet)
+    On Error Resume Next
+    LastCol = sh.Cells.Find(What:="*", _
+                            After:=sh.Range("A1"), _
+                            Lookat:=xlPart, _
+                            LookIn:=xlFormulas, _
+                            SearchOrder:=xlByColumns, _
+                            SearchDirection:=xlPrevious, _
+                            MatchCase:=False).Column
+    On Error GoTo 0
+End Function
+
+Sub CopyRangeFromMultiWorksheets()
+    Dim sh As Worksheet
+    Dim DestSh As Worksheet
+    Dim Last As Long
+    Dim CopyRng As Range
+
+    With Application
+        .ScreenUpdating = False
+        .EnableEvents = False
+    End With
+
+    'Delete the sheet "RDBMergeSheet" if it exist
+    Application.DisplayAlerts = False
+    On Error Resume Next
+    ActiveWorkbook.Worksheets("RDBMergeSheet").Delete
+    On Error GoTo 0
+    Application.DisplayAlerts = True
+
+    'Add a worksheet with the name "RDBMergeSheet"
+    Set DestSh = ActiveWorkbook.Worksheets.Add
+    DestSh.Name = "RDBMergeSheet"
+
+    'loop through all worksheets and copy the data to the DestSh
+    For Each sh In ActiveWorkbook.Worksheets
+        If sh.Name <> DestSh.Name Then
+
+            'Find the last row with data on the DestSh
+            Last = LastRow(DestSh)
+
+            'Fill in the range that you want to copy
+            Set CopyRng = sh.Range("A1:DA1")
+
+            'Test if there enough rows in the DestSh to copy all the data
+            If Last + CopyRng.Rows.Count > DestSh.Rows.Count Then
+                MsgBox "There are not enough rows in the Destsh"
+                GoTo ExitTheSub
+            End If
+
+            'This example copies values/formats, if you only want to copy the
+            'values or want to copy everything look at the example below this macro
+            CopyRng.Copy
+            With DestSh.Cells(Last + 1, "A")
+                .PasteSpecial xlPasteValues
+                .PasteSpecial xlPasteFormats
+                Application.CutCopyMode = False
+            End With
+
+            'Optional: This will copy the sheet name in the H column
+            DestSh.Cells(Last + 1, "A").Resize(CopyRng.Rows.Count).Value = sh.Name
+
+        End If
+    Next
+
+ExitTheSub:
+
+    Application.Goto DestSh.Cells(1)
+
+    'AutoFit the column width in the DestSh sheet
+    DestSh.Columns.AutoFit
+
+    With Application
+        .ScreenUpdating = True
+        .EnableEvents = True
+    End With
+End Sub
