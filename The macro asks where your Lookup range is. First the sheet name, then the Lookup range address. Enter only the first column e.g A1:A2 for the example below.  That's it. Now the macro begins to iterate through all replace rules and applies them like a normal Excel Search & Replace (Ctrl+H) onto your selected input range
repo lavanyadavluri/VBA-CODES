@@ -1,0 +1,20 @@
+Sub MultiReplace()
+On Error GoTo errorcatch
+Dim arrRules() As Variant
+
+    strSheet = InputBox("Enter sheet name where your replace rules are", _
+        "Sheet name", "Sheet1")
+    strRules = InputBox("Enter address of replaces rules." & vbNewLine & _
+        "But only the first column!", "Address", "A1:A100")
+
+    Set rngCol1 = Sheets(strSheet).Range(strRules)
+    Set rngCol2 = rngCol1.Offset(0, 1)
+    arrRules = Application.Union(rngCol1, rngCol2)
+
+    For i = 1 To UBound(arrRules)
+        Selection.Replace What:=arrRules(i, 1), Replacement:=arrRules(i, 2), _
+            LookAt:=xlWhole, MatchCase:=True
+    Next i
+
+errorcatch:
+End Sub
