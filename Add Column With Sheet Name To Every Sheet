@@ -2,12 +2,18 @@ Option Explicit
  
 Sub Prepare_Sheet()
     Dim WS As Worksheet
-    Dim LASTROW As Long
+    Dim LASTROW As Long 'automatically detects last row
+    Dim Name As String  'Give the name or the new column  inserted
+    
+    
     For Each WS In Sheets
         With WS
+            Name = "Partner"
             LASTROW = .Range("A" & Rows.Count).End(xlUp).Row
             .Columns(1).Insert
+            .Range("A1") = Name
             .Range("A2:A" & LASTROW) = WS.Name
         End With
     Next WS
 End Sub
+
