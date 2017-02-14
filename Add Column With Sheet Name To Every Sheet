@@ -1,0 +1,13 @@
+Option Explicit
+ 
+Sub Prepare_Sheet()
+    Dim WS As Worksheet
+    Dim LASTROW As Long
+    For Each WS In Sheets
+        With WS
+            LASTROW = .Range("A" & Rows.Count).End(xlUp).Row
+            .Columns(1).Insert
+            .Range("A2:A" & LASTROW) = WS.Name
+        End With
+    Next WS
+End Sub
