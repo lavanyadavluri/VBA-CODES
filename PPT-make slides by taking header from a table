@@ -1,0 +1,19 @@
+Sub createHeaders()
+
+    Dim sl As Slide
+    Dim tbl As Table
+    Dim shp As Shape
+    Dim i As Long
+
+    Set sl = ActivePresentation.Slides(1)
+    Set tbl = sl.Shapes("HeadersTable").Table
+
+    For i = 1 To tbl.Rows.Count
+
+        Set sl = ActivePresentation.Slides.Add(i + 1, ppLayoutTitleOnly)
+        Set shp = sl.Shapes("Title 1")
+        shp.TextFrame.TextRange.Text = tbl.Rows(i).Cells.Item(1).Shape.TextFrame.TextRange.Text
+
+    Next i
+
+End Sub
